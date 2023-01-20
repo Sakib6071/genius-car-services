@@ -4,16 +4,19 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import Footer from './Pages/Shared/Footer/Footer';
 import { Route, Routes } from 'react-router-dom';
 import About from './Pages/About/About';
+import Home from './Pages/Home/Home/Home';
+import Header from './Pages/Shared/Header/Header';
 
 
 function App() {
   return (
     <div>
-<p className=' text-red-500'>This is app js</p>
+<Header></Header>
 <Routes>
-  <Route path='/'></Route>
+  <Route path='/' element={<Home></Home>}></Route>
   <Route path='/about' element={<About></About>}></Route>
 </Routes>
+<Footer></Footer>
     </div>
   );
 }
