@@ -1,32 +1,70 @@
 import React from 'react';
 import { Link, Navigate, useNavigate } from 'react-router-dom';
-import { useCreateUserWithEmailAndPassword } from 'react-firebase-hooks/auth';
+import { useCreateUserWithEmailAndPassword, useUpdateProfile } from 'react-firebase-hooks/auth';
 import auth from '../../../firebase.init';
+import SocialLogin from '../SocialLogin/SocialLogin';
+import { useState } from 'react';
+import { sendEmailVerification } from 'firebase/auth';
+import { async } from '@firebase/util';
+import Loading from '../../Shared/Loading/Loading';
 
 const Register = () => {
+  const [errors,setErrors]=useState('')
+  const [agree,setAgree]=useState(false)
   const navigate = useNavigate()
   const [
     createUserWithEmailAndPassword,
     user,
     loading,
     error,
-  ] = useCreateUserWithEmailAndPassword(auth);
-    const handleRegistration=(e)=>{
+  ] = useCreateUserWithEmailAndPassword(auth, {sendEmailVerification:(true)});
+ 
+  const [updateProfile, updating, updateError] = useUpdateProfile(auth);
+    const handleRegistration= async (e)=>{
         e.preventDefault()
+        const name = e.target.name.value;
         const email = e.target.email.value;
         const password = e.target.password.value;
         const confirmPassword=e.target.confirmPassword.value;
-        createUserWithEmailAndPassword(email, password)
+        if(agree){         
+        if(password===confirmPassword){
+          await createUserWithEmailAndPassword(email, password)
+          await updateProfile({ displayName:name});
+          
+            console.log('Updated profile');
+          
+      navigate("/")
+        }
+        else{
+          setErrors("Password not matched")
+        }
+        }
+        else{
+          setErrors("Accept terms and condition")
+        }
     }
     if(user){
-      navigate("/")
+      console.log(user);
+    }
+    if(loading){
+      return <Loading></Loading>
     }
     return (
         <div>
-        <div className="my-5 w-2/5 mx-auto bg-gray-700 rounded-lg px-10 py-8">
+        <div className="mt-5 w-4/5 md:w-2/5 mx-auto bg-gray-700 rounded-lg px-10 py-8">
           <p className="text-center text-3xl text-yellow-500">Register Here</p>
           <form onSubmit={handleRegistration}>
-            <div className="email-field">
+            <div className="name-field">
+              <label className="text-white text-xl">Enter Your Name</label>{" "}
+              <br />
+              <input
+                className=" px-2 py-3 w-full rounded-lg"
+                type="text"
+                placeholder="Your Name"
+                name="name"
+              />
+            </div>
+            <div className="email-field my-5">
               <label className="text-white text-xl">Enter Your Email</label>{" "}
               <br />
               <input
@@ -47,7 +85,7 @@ const Register = () => {
               />
             </div>
   
-            <div className="confirm-password-field">
+            <div className="confirm-password-field mb-5">
               <label className="text-white text-xl">Confirm Password</label>{" "}
               <br />
               <input
@@ -57,15 +95,21 @@ const Register = () => {
                 name='confirmPassword'
               />
             </div>
+            <div>
+              <input onClick={()=>setAgree(!agree)} type="checkbox" name="terms" id="terms" />
+              <label className='text-white' htmlFor="terms">Accept Terms & Conditions</label>
+            </div>
 
             <div className="register-button mt-5 text-right">
               <input
-                className="hover:cursor-pointer w-full bg-yellow-500 text-black px-5 py-2 text-xl font-semibold rounded-lg"
+              disabled={!agree}
+                className={`hover:cursor-pointer w-full bg-yellow-500 text-black px-5 py-2 text-xl font-semibold rounded-lg ${agree?"bg-yellow-500 text-black":"disabled: bg-yellow-200 text-gray-500"}`}
                 type="submit"
                 value="Register"
               />
             </div>
           </form>
+          <div><p className='text-red-500'>{errors}</p></div>
           <div className="already-account mt-2 mb-5">
             <p className=" text-gray-300">
               Already have an account?{" "}
@@ -81,21 +125,8 @@ const Register = () => {
             </span>
             <hr className=" w-2/5 inline-block" />
           </div>
-{/*           <div className="sign-in-google">
-            <button
-              onClick={handleGoogleSignIn}
-              className="text-white py-3 px-2 my-2 text-left w-full border-2 rounded-lg"
-            >
-              <FontAwesomeIcon
-                className=" w-1/6 inline-block text-left"
-                icon={faGoogle}
-                size={"xl"}
-              ></FontAwesomeIcon>
-              <span className="text-center w-5/6 mx-auto inline-block ">
-                Continue With Google
-              </span>
-            </button>
-          </div> */}
+        <SocialLogin></SocialLogin>
+        
         </div>
       </div>
     );

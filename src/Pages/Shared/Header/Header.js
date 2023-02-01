@@ -34,7 +34,7 @@ const Header = () => {
           <div>
             {
                 user?<Link to={"/login"}>
-                    <button className="" onClick={handleSignOut}>Logout</button>
+                    <button className="text-xl font-semibold" onClick={handleSignOut}>Logout</button>
                 </Link>: <Link to={"/login"} className="text-xl font-semibold">
               Login
             </Link>

@@ -58,19 +58,16 @@ const Banner = () => {
         <Slider {...settings}>
           <div className=" h-screen">
             <div className="background-1 my-10 bg-no-repeat bg-cover block h-5/6">
-              <h1>ss</h1>
             </div>
           </div>
 
           <div className=" h-screen">
             <div className="background-2 my-10 bg-no-repeat bg-cover block h-5/6">
-              <h1>ss</h1>
             </div>
           </div>
 
           <div className=" h-screen">
             <div className="background-3 my-10 bg-no-repeat bg-cover block h-5/6">
-              <h1>ss</h1>
             </div>
           </div>
         </Slider>

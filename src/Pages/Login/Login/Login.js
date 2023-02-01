@@ -1,8 +1,13 @@
+import { async } from "@firebase/util";
 import React from "react";
 import { useRef } from "react";
-import { useSignInWithEmailAndPassword } from "react-firebase-hooks/auth";
+import { useSendPasswordResetEmail, useSignInWithEmailAndPassword } from "react-firebase-hooks/auth";
 import { useLocation, useNavigate } from "react-router-dom";
 import auth from "../../../firebase.init";
+import Loading from "../../Shared/Loading/Loading";
+import SocialLogin from "../SocialLogin/SocialLogin";
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 const Login = () => {
   const emailRef = useRef();
@@ -11,28 +16,46 @@ const Login = () => {
   const handleNewUser = () => {
     navigate("/register");
   };
-  const [
-    signInWithEmailAndPassword,
-    user,
-    loading,
-    error,
-  ] = useSignInWithEmailAndPassword(auth);
+  const [signInWithEmailAndPassword, user, loading, error] =
+    useSignInWithEmailAndPassword(auth);
+  let errorField;
+  if (error) {
+    errorField = (
+      <div>
+        <p className="text-red-500">Error: {error?.message}</p>
+      </div>
+    );
+  }
   const handleLogin = (e) => {
     e.preventDefault();
     const email = emailRef.current.value;
     const password = passwordRef.current.value;
     console.log(email, password);
-    signInWithEmailAndPassword(email, password)
+    signInWithEmailAndPassword(email, password);
   };
-  const location = useLocation()
-  const from = location.state?.from?.pathname || "/"
-    
-  if(user){
-    navigate(from,{replace:true})
+  const location = useLocation();
+  const from = location.state?.from?.pathname || "/";
+
+  if (user) {
+    navigate(from, { replace: true });
   }
+  const [sendPasswordResetEmail, sending] = useSendPasswordResetEmail(auth);
+  const handleForgetPassword = async()=>{
+    const email = emailRef.current.value;
+    if(email){
+      await sendPasswordResetEmail(email);
+    toast("sent email")
+    }
+    else{
+      toast('Please Enter Your Email Address')
+    }
+  }
+  // if(Loading||sending){
+  //   return <Loading></Loading>
+  // }
   return (
     <div>
-      <div className="mt-5 w-2/5 mx-auto bg-gray-700 rounded-lg px-10 py-8">
+      <div className="mt-5 w-4/5 md:w-2/5 mx-auto bg-gray-700 rounded-lg px-10 py-8">
         <p className="text-center text-3xl text-yellow-500">Login Here</p>
         <form onSubmit={handleLogin}>
           <div className="email-field">
@@ -65,6 +88,14 @@ const Login = () => {
             />
           </div>
         </form>
+        <div className="forget-password mt-2 mb-5">
+          <p
+            className="text-yellow-500  cursor-pointer"
+            onClick={handleForgetPassword}
+          >
+            Forget Password?
+          </p>
+        </div>
         <div className="new-user mt-2 mb-5">
           <p className=" text-gray-300">
             New here?{" "}
@@ -76,6 +107,7 @@ const Login = () => {
             </span>
           </p>
         </div>
+        {errorField}
         <div className="or w-4/5 mx-auto mb-5">
           <hr className=" w-2/5 inline-block" />
           <span className="text-center text-gray-300 inline-block w-1/5">
@@ -83,19 +115,9 @@ const Login = () => {
           </span>
           <hr className=" w-2/5 inline-block" />
         </div>
-        {/* <div className="sign-in-google">
-            <button onClick={handleGoogleSignIn} className="text-white py-3 px-2 my-2 text-left w-full border-2 rounded-lg">
-              <FontAwesomeIcon
-                className=" w-1/6 inline-block text-left"
-                icon={faGoogle}
-                size={"xl"}
-              ></FontAwesomeIcon>
-              <span className="text-center w-5/6 mx-auto inline-block ">
-                Continue With Google
-              </span>
-            </button>
-          </div> */}
+        <SocialLogin></SocialLogin>
       </div>
+      <ToastContainer />
     </div>
   );
 };
