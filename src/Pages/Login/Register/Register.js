@@ -7,6 +7,7 @@ import { useState } from 'react';
 import { sendEmailVerification } from 'firebase/auth';
 import { async } from '@firebase/util';
 import Loading from '../../Shared/Loading/Loading';
+import PageTitle from '../../Shared/PageTitle/PageTitle';
 
 const Register = () => {
   const [errors,setErrors]=useState('')
@@ -51,6 +52,7 @@ const Register = () => {
     }
     return (
         <div>
+          <PageTitle title="Register"></PageTitle>
         <div className="mt-5 w-4/5 md:w-2/5 mx-auto bg-gray-700 rounded-lg px-10 py-8">
           <p className="text-center text-3xl text-yellow-500">Register Here</p>
           <form onSubmit={handleRegistration}>
